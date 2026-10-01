@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { setToken } from '../api';
+import { API_URL } from '../api';
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ export function RegisterPage() {
     setError('');
 
     try {
-      const res = await fetch('http://localhost:3000/api/auth/register', {
+      const res = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
