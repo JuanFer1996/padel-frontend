@@ -134,25 +134,25 @@ export function TournamentDetailsPage() {
   e.preventDefault();
   
   try {
-    const token = localStorage.getItem('token'); // O la forma en que obtengas tu token
-    console.log("ID a enviar:", tournament.id);
-    // Cambia el final de la URL si tu backend usa otra ruta para inscribirse
+    const token = getToken(); // 👈 Unificado con la lógica que ya te funciona en Admin
+    console.log("ID a enviar:", id);
+    
     const response = await fetch(`${API_URL}/registrations`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      // Solo enviamos el DNI del compañero. El backend saca tus datos del Token.
-      body: JSON.stringify({ tournamentId: tournament.id,
-                              partnerDni: partnerDni
-       }) 
+      body: JSON.stringify({ 
+        tournamentId: id, // 👈 Reemplazamos tournament.id por la variable directa
+        partnerDni: partnerDni
+      }) 
     });
 
     if (response.ok) {
       alert('¡Inscripción exitosa! Ya están en el torneo.');
       setPartnerDni('');
-      // Aquí puedes recargar los datos del torneo si tienes una función para eso
+      fetchTournament(); // 👈 Agregamos la función que usaste arriba para actualizar la vista al instante
     } else {
       const errorData = await response.json();
       alert(`Error al inscribirse: ${errorData.message || 'Inténtalo de nuevo'}`);
