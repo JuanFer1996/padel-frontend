@@ -137,7 +137,7 @@ export function TournamentDetailsPage() {
     const token = localStorage.getItem('token'); // O la forma en que obtengas tu token
     
     // Cambia el final de la URL si tu backend usa otra ruta para inscribirse
-    const response = await fetch(`${API_URL}/registration`, {
+    const response = await fetch(`${API_URL}/registrations`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
