@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { getToken, setToken } from './api';
+import { API_URL } from '../api';
 
 type AuthContextValue = {
   user: any;
@@ -21,7 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     // El frontend ahora llama a la ruta "me" que acabamos de crear
-    fetch('http://localhost:3000/api/auth/me', {
+    fetch(`${API_URL}/auth/me`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => {
@@ -38,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       loading,
       async login(email, password) {
-        const res = await fetch('http://localhost:3000/api/auth/login', {
+        const res = await fetch(`${API_URL}/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),

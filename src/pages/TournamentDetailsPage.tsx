@@ -1,6 +1,7 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getToken, getUser } from '../api';
+import { API_URL } from '../api';
 
 export function TournamentDetailsPage() {
   const { id } = useParams();
@@ -23,6 +24,7 @@ export function TournamentDetailsPage() {
   const [timeInput, setTimeInput] = useState('');
   const [scoreInput, setScoreInput] = useState('');
   const [winnerInput, setWinnerInput] = useState('');
+  
 
   // Edición de Torneo
   const [isEditing, setIsEditing] = useState(false);
@@ -32,7 +34,7 @@ export function TournamentDetailsPage() {
   const isAdmin = currentUser?.role === 'ADMIN';
 
   function fetchTournament() {
-    fetch(`http://localhost:3000/api/tournaments/${id}`, {
+    fetch(`${API_URL}/tournaments/${id}`, {
       headers: { Authorization: `Bearer ${getToken()}` }
     })
       .then(res => res.json())
@@ -64,7 +66,7 @@ export function TournamentDetailsPage() {
   async function handleUpdateTournament(e: FormEvent) {
     e.preventDefault();
     try {
-      const res = await fetch(`http://localhost:3000/api/tournaments/${id}`, {
+      const res = await fetch(`${API_URL}/tournaments/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
         body: JSON.stringify(editForm)
@@ -78,7 +80,7 @@ export function TournamentDetailsPage() {
   async function handleCloseInscriptions() {
     if (!window.confirm('¿Cerrar inscripciones?')) return;
     try {
-      await fetch(`http://localhost:3000/api/tournaments/${id}/close-inscriptions`, { method: 'PATCH', headers: { 'Authorization': `Bearer ${getToken()}` } });
+      await fetch(`${API_URL}/tournaments/${id}/close-inscriptions`, { method: 'PATCH', headers: { 'Authorization': `Bearer ${getToken()}` } });
       fetchTournament();
     } catch (error) {}
   }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getToken, getUser } from '../api';
 import { Link } from 'react-router-dom';
+import { API_URL } from '../api';
 
 export function ProfilePage() {
   const [activity, setActivity] = useState<{ user: any; tournaments: any[]; matches: any[] }>({ user: null, tournaments: [], matches: [] });
@@ -10,7 +11,7 @@ export function ProfilePage() {
   const localUser = getUser();
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/tournaments/my/activity', {
+    fetch(`${API_URL}/tournaments/my/activity`, {
       headers: { 'Authorization': `Bearer ${getToken()}` }
     })
       .then(res => res.json())

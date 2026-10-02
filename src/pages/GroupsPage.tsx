@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { API_URL } from '../api';
 
 const teamLabel = (team: any) => team && team.player1 ? `${team.player1.lastName} / ${team.player2.lastName}` : 'TBD';
 
