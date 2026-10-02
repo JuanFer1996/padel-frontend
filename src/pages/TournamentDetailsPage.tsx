@@ -9,6 +9,8 @@ export function TournamentDetailsPage() {
   
   const [tournament, setTournament] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  const [partnerDni, setPartnerDni] = useState(''); 
   
   // Tabs Navigation
   const [activeMainTab, setActiveMainTab] = useState<'INFO' | 'FIXTURE'>('INFO');
@@ -88,7 +90,7 @@ export function TournamentDetailsPage() {
   async function handleGenerateZones() {
     if (!window.confirm('¿Generar zonas?')) return;
     try {
-      await fetch(`http://localhost:3000/api/tournaments/${id}/generate-zones`, { method: 'POST', headers: { 'Authorization': `Bearer ${getToken()}` } });
+      await fetch(`${API_URL}/tournaments/${id}/generate-zones`, { method: 'POST', headers: { 'Authorization': `Bearer ${getToken()}` } });
       fetchTournament();
     } catch (error: any) { alert(error.message); }
   }
@@ -96,7 +98,7 @@ export function TournamentDetailsPage() {
   async function handleGenerateMatches() {
     if (!window.confirm('¿Generar partidos?')) return;
     try {
-      await fetch(`http://localhost:3000/api/tournaments/${id}/generate-matches`, { method: 'POST', headers: { 'Authorization': `Bearer ${getToken()}` } });
+      await fetch(`${API_URL}/tournaments/${id}/generate-matches`, { method: 'POST', headers: { 'Authorization': `Bearer ${getToken()}` } });
       fetchTournament();
     } catch (error: any) { alert(error.message); }
   }
@@ -104,7 +106,7 @@ export function TournamentDetailsPage() {
   async function handleGeneratePlayoffs() {
     if (!window.confirm('¿Generar Llave Campeonato?')) return;
     try {
-      await fetch(`http://localhost:3000/api/tournaments/${id}/generate-playoffs`, { method: 'POST', headers: { 'Authorization': `Bearer ${getToken()}` } });
+      await fetch(`${API_URL}/tournaments/${id}/generate-playoffs`, { method: 'POST', headers: { 'Authorization': `Bearer ${getToken()}` } });
       fetchTournament();
       setFixtureView('CUADRO');
     } catch (error: any) { alert(error.message); }
@@ -114,7 +116,7 @@ export function TournamentDetailsPage() {
     e.preventDefault();
     if (!adminP1Dni.trim() || !adminP2Dni.trim()) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/tournaments/${id}/admin-register`, {
+      const res = await fetch(`${API_URL}/tournaments/${id}/admin-register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
         body: JSON.stringify({ player1Dni: adminP1Dni, player2Dni: adminP2Dni })
@@ -128,9 +130,40 @@ export function TournamentDetailsPage() {
     } catch (error: any) { alert(error.message); }
   }
 
+  const handleUserRegistration = async (e: React.FormEvent) => {
+  e.preventDefault();
+  
+  try {
+    const token = localStorage.getItem('token'); // O la forma en que obtengas tu token
+    
+    // Cambia el final de la URL si tu backend usa otra ruta para inscribirse
+    const response = await fetch(`${API_URL}/registration`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      // Solo enviamos el DNI del compañero. El backend saca tus datos del Token.
+      body: JSON.stringify({ partnerDni }) 
+    });
+
+    if (response.ok) {
+      alert('¡Inscripción exitosa! Ya están en el torneo.');
+      setPartnerDni('');
+      // Aquí puedes recargar los datos del torneo si tienes una función para eso
+    } else {
+      const errorData = await response.json();
+      alert(`Error al inscribirse: ${errorData.message || 'Inténtalo de nuevo'}`);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error de conexión con el servidor.');
+  }
+};
+
   async function handleSaveResult(matchId: string) {
     try {
-      const res = await fetch(`http://localhost:3000/api/tournaments/${id}/matches/${matchId}`, {
+      const res = await fetch(`${API_URL}/tournaments/${id}/matches/${matchId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
         body: JSON.stringify({ 
@@ -295,6 +328,57 @@ export function TournamentDetailsPage() {
                     </form>
                   </div>
                 )}
+              </div>
+            )}
+
+            {!isAdmin && !isClosed && (
+              <div style={{ padding: '20px', background: '#09090b', borderRadius: '8px', border: '1px solid #27272a', marginTop: '20px' }}>
+                <h4 style={{ margin: '0 0 15px 0', color: '#f8fafc', fontSize: '16px', textAlign: 'center' }}>
+                  🎾 Inscribir a mi pareja
+                </h4>
+                
+                <form onSubmit={handleUserRegistration} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  <div>
+                    <label style={{ fontSize: '12px', color: '#a1a1aa', marginBottom: '5px', display: 'block' }}>
+                      DNI de tu compañero/a
+                    </label>
+                    <input 
+                      type="text" 
+                      placeholder="Ej: 35123456" 
+                      value={partnerDni} 
+                      onChange={e => setPartnerDni(e.target.value)} 
+                      required 
+                      style={{ 
+                        width: '100%', 
+                        padding: '12px', 
+                        borderRadius: '6px', 
+                        border: '1px solid #3f3f46', 
+                        background: '#27272a', 
+                        color: '#fff', 
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }} 
+                    />
+                  </div>
+                  
+                  <button 
+                    type="submit" 
+                    style={{ 
+                      width: '100%', 
+                      padding: '15px', 
+                      background: '#a3e635', 
+                      color: '#000', 
+                      border: 'none', 
+                      borderRadius: '6px', 
+                      cursor: 'pointer', 
+                      fontWeight: 'bold', 
+                      fontSize: '15px',
+                      textTransform: 'uppercase'
+                    }}
+                  >
+                    Confirmar Inscripción
+                  </button>
+                </form>
               </div>
             )}
 
