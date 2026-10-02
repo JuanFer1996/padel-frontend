@@ -1,6 +1,7 @@
 import { useEffect, useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { getToken, getUser } from '../api';
+import { API_URL } from '../api';
 
 
 export function HomePage() {
@@ -20,7 +21,7 @@ export function HomePage() {
   const isAdmin = user?.role === 'ADMIN';
 
   function fetchTournaments() {
-    fetch('http://localhost:3000/api/tournaments', {
+    fetch(`${API_URL}/tournaments`, {
       headers: { 'Authorization': `Bearer ${getToken()}` }
     })
       .then(res => res.json())
@@ -38,14 +39,14 @@ export function HomePage() {
 
   useEffect(() => { 
   fetchTournaments(); 
-  fetch('http://localhost:3000/api/tournaments/util/clubs', { headers: { 'Authorization': `Bearer ${getToken()}` } })
+  fetch(`${API_URL}/clubs`, { headers: { 'Authorization': `Bearer ${getToken()}` } })
     .then(res => res.json()).then(data => { setClubs(data); if (data.length > 0) setClubId(data[0].id); }).catch(console.error);
 }, []);
 
   async function handleCreate(e: FormEvent) {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:3000/api/tournaments', {
+      const res = await fetch(`${API_URL}/tournaments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
         body: JSON.stringify({ 
@@ -76,7 +77,7 @@ export function HomePage() {
   async function handleDelete(id: string) {
     if (!window.confirm('¿Estás seguro de eliminar este torneo? Esta acción borrará todos los partidos e inscripciones y no se puede deshacer.')) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/tournaments/${id}`, {
+      const res = await fetch(`${API_URL}/tournaments/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${getToken()}` }
       });
