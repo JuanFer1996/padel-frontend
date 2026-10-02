@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getToken } from '../api';
+import { API_URL } from '../api';
 
 export function CreateTournamentPage() {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ export function CreateTournamentPage() {
         endDate: new Date(form.endDate).toISOString(),
       };
 
-      const res = await fetch('http://localhost:3000/api/tournaments', {
+      const res = await fetch(`${API_URL}/clubs`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
