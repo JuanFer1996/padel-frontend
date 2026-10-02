@@ -135,7 +135,7 @@ export function TournamentDetailsPage() {
   
   try {
     const token = localStorage.getItem('token'); // O la forma en que obtengas tu token
-    
+    console.log("ID a enviar:", tournament.id);
     // Cambia el final de la URL si tu backend usa otra ruta para inscribirse
     const response = await fetch(`${API_URL}/registrations`, {
       method: 'POST',
@@ -144,7 +144,9 @@ export function TournamentDetailsPage() {
         'Authorization': `Bearer ${token}`
       },
       // Solo enviamos el DNI del compañero. El backend saca tus datos del Token.
-      body: JSON.stringify({ partnerDni }) 
+      body: JSON.stringify({ tournamentId: tournament.id,
+                              partnerDni: partnerDni
+       }) 
     });
 
     if (response.ok) {
