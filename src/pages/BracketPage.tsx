@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react';
 import { API_URL } from '../api';
 
-const ROUNDS = ['OCTAVOS', 'CUARTOS', 'SEMIFINAL', 'FINAL'] as const;
+const ROUNDS = ['DIECISEISAVOS', 'OCTAVOS', 'CUARTOS', 'SEMIFINAL', 'FINAL'] as const;
 
 // Helper para evitar errores si un equipo está vacío
 const teamLabel = (team: any) => team && team.player1 ? `${team.player1.lastName} / ${team.player2.lastName}` : 'TBD';
+const compareMatchesBySchedule = (a: any, b: any) => {
+  const dateA = a.date ? new Date(a.date).getTime() : Number.MAX_SAFE_INTEGER;
+  const dateB = b.date ? new Date(b.date).getTime() : Number.MAX_SAFE_INTEGER;
+  return dateA - dateB || String(a.startTime || '').localeCompare(String(b.startTime || '')) || String(a.id).localeCompare(String(b.id));
+};
 
 function RoundColumn({ title, matches }: { title: string; matches: any[] }) {
   const boxes = matches.length > 0 ? matches : [{ id: `${title}-empty` }];
@@ -70,7 +75,7 @@ export function BracketPage() {
               <RoundColumn
                 key={round}
                 title={round.replace('_', ' ')}
-                matches={matches.filter((match: any) => match.round === round)}
+                matches={matches.filter((match: any) => match.round === round).sort(compareMatchesBySchedule)}
               />
             ))}
           </div>

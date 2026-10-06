@@ -3,6 +3,18 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getToken, getUser } from '../api';
 import { API_URL } from '../api';
 
+const PLAYOFF_ROUNDS = ['DIECISEISAVOS', 'OCTAVOS', 'CUARTOS', 'SEMIFINAL', 'FINAL'];
+
+function teamLabel(team: any) {
+  return team?.player1 ? `${team.player1.lastName} / ${team.player2.lastName}` : 'A definir';
+}
+
+function compareMatchesBySchedule(a: any, b: any) {
+  const dateA = a.date ? new Date(a.date).getTime() : Number.MAX_SAFE_INTEGER;
+  const dateB = b.date ? new Date(b.date).getTime() : Number.MAX_SAFE_INTEGER;
+  return dateA - dateB || String(a.startTime || '').localeCompare(String(b.startTime || '')) || String(a.id).localeCompare(String(b.id));
+}
+
 export function TournamentDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -213,7 +225,7 @@ export function TournamentDetailsPage() {
 
   const isClosed = tournament.state === 'INSCRIPCION_CERRADA';
   const zonesList = Array.from(new Set((tournament.registrations || []).map((r: any) => r.zone).filter(Boolean))).sort();
-  const allPlayoffs = tournament.matches?.filter((m: any) => m.round !== 'FASE_GRUPOS') || [];
+  const allPlayoffs = (tournament.matches?.filter((m: any) => m.round !== 'FASE_GRUPOS') || []).sort(compareMatchesBySchedule);
 
   return (
     <div style={{ background: '#09090b', minHeight: '100vh', color: '#f8fafc', fontFamily: 'system-ui, sans-serif' }}>
@@ -526,8 +538,8 @@ export function TournamentDetailsPage() {
 
             {fixtureView === 'CUADRO' && (
               <div style={{ display: 'flex', gap: '40px', overflowX: 'auto', padding: '20px 0' }}>
-                {['CUARTOS', 'SEMIFINAL', 'FINAL'].map(round => {
-                  const roundMatches = allPlayoffs.filter((m: any) => m.round === round);
+                {PLAYOFF_ROUNDS.map(round => {
+                  const roundMatches = allPlayoffs.filter((m: any) => m.round === round).sort(compareMatchesBySchedule);
                   if (roundMatches.length === 0) return null;
                   
                   return (
@@ -551,8 +563,8 @@ export function TournamentDetailsPage() {
                               <input type="text" placeholder="Ej: 6/4 7/6" value={scoreInput} onChange={e => setScoreInput(e.target.value)} style={{ padding: '8px', background: '#09090b', border: '1px solid #3f3f46', color: '#fff', borderRadius: '4px' }} />
                               <select value={winnerInput} onChange={e => setWinnerInput(e.target.value)} style={{ padding: '8px', background: '#09090b', border: '1px solid #3f3f46', color: '#fff', borderRadius: '4px' }}>
                                 <option value="">Ganador...</option>
-                                <option value={match.teamA?.id}>{match.teamA?.player1?.lastName} / {match.teamA?.player2?.lastName}</option>
-                                <option value={match.teamB?.id}>{match.teamB?.player1?.lastName} / {match.teamB?.player2?.lastName}</option>
+                                {match.teamA && <option value={match.teamA.id}>{teamLabel(match.teamA)}</option>}
+                                {match.teamB && <option value={match.teamB.id}>{teamLabel(match.teamB)}</option>}
                               </select>
                               
                               <div style={{ display: 'flex', gap: '10px' }}>
@@ -568,7 +580,7 @@ export function TournamentDetailsPage() {
 
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '10px', borderBottom: '1px solid #27272a', marginBottom: '10px' }}>
                                 <span style={{ fontWeight: 'bold', fontSize: '14px', color: match.winnerId === match.teamA?.id ? '#ea580c' : '#f8fafc' }}>
-                                  {match.teamA?.player1?.lastName} / {match.teamA?.player2?.lastName}
+                                  {teamLabel(match.teamA)}
                                 </span>
                                 {match.score && (
                                   <div style={{ display: 'flex', gap: '4px' }}>
@@ -582,7 +594,7 @@ export function TournamentDetailsPage() {
                               
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <span style={{ fontWeight: 'bold', fontSize: '14px', color: match.winnerId === match.teamB?.id ? '#ea580c' : '#f8fafc' }}>
-                                  {match.teamB?.player1?.lastName} / {match.teamB?.player2?.lastName}
+                                  {teamLabel(match.teamB)}
                                 </span>
                                 {match.score && (
                                   <div style={{ display: 'flex', gap: '4px' }}>
@@ -594,7 +606,7 @@ export function TournamentDetailsPage() {
                                 )}
                               </div>
 
-                              {isAdmin && match.state !== 'FINALIZADO' && (
+                              {isAdmin && match.state !== 'FINALIZADO' && match.teamA && match.teamB && (
                                 <button onClick={() => { 
                                   setEditingMatchId(match.id); 
                                   setScoreInput(match.score || ''); 
