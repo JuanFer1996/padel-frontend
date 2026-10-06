@@ -9,7 +9,7 @@ export function GroupsPage() {
   const [detail, setDetail] = useState<any | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/tournaments')
+    fetch(`${API_URL}/tournaments`)
       .then(res => res.json())
       .then((items) => {
         const list = Array.isArray(items) ? items : items.tournaments || [];
@@ -20,7 +20,7 @@ export function GroupsPage() {
 
   useEffect(() => {
     if (!selectedId) return;
-    fetch(`http://localhost:3000/api/tournaments/${selectedId}`)
+    fetch(`${API_URL}/tournaments/${selectedId}`)
       .then(res => res.json())
       .then(setDetail).catch(() => {});
   }, [selectedId]);
